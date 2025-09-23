@@ -51,14 +51,13 @@ jobs:
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli
 
-      - name: Run Lighthouse CI with thresholds
+      - name: Run Lighthouse audit with thresholds
         run: |
-          # Génération du rapport JSON unique
-          lhci collect \
-            --url=http://localhost:3000 \
-            --numberOfRuns=1 \
+          # Générer un rapport JSON unique
+          lighthouse http://localhost:3000 \
             --output=json \
-            --output-path=./lighthouse-report.json
+            --output-path=./lighthouse-report.json \
+            --chrome-flags="--headless --no-sandbox --disable-gpu"
 
           # Vérifie que le JSON est bien lisible
           cat lighthouse-report.json | jq '.' > /dev/null
