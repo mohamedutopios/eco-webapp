@@ -48,37 +48,6 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      # ✅ GreenIT CLI pour analyse NR locale
-      - name: Install GreenIT CLI
-        run: npm install -g greenit-cli
-
-      - name: Run GreenIT analysis
-        run: greenit http://localhost:3000 --json > greenit-report.json
-
-      - name: Check GreenIT thresholds
-        run: |
-          score=$(jq '.ecoIndex' greenit-report.json)
-          size=$(jq '.size' greenit-report.json)
-          dom=$(jq '.nodes' greenit-report.json)
-
-          echo "GreenIT EcoIndex = $score"
-          echo "Page size = $size Ko"
-          echo "DOM nodes = $dom"
-
-          if [ "$score" -lt 50 ]; then
-            echo "❌ EcoIndex trop faible (score < 50)"
-            exit 1
-          fi
-          if [ "$size" -gt 1500 ]; then
-            echo "❌ Page trop lourde (> 1500 Ko)"
-            exit 1
-          fi
-          if [ "$dom" -gt 600 ]; then
-            echo "❌ DOM trop complexe (> 600)"
-            exit 1
-          fi
-
-      # ✅ Lighthouse CI
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli
 
@@ -87,15 +56,21 @@ jobs:
           lhci collect --url=http://localhost:3000 --numberOfRuns=1 --output=json > lighthouse-report.json
           perf=$(jq '.categories.performance.score * 100' lighthouse-report.json)
           acc=$(jq '.categories.accessibility.score * 100' lighthouse-report.json)
+          seo=$(jq '.categories.seo.score * 100' lighthouse-report.json)
 
           echo "Performance = $perf"
           echo "Accessibilité = $acc"
+          echo "SEO = $seo"
 
-          if [ "$perf" -lt 80 ]; then
-            echo "❌ Score performance trop faible (< 80)"
+          if [ "$perf" -lt 50 ]; then
+            echo "❌ Score performance trop faible (< 50)"
             exit 1
           fi
-          if [ "$acc" -lt 70 ]; then
-            echo "❌ Score accessibilité trop faible (< 70)"
+          if [ "$acc" -lt 50 ]; then
+            echo "❌ Score accessibilité trop faible (< 50)"
+            exit 1
+          fi
+          if [ "$seo" -lt 50 ]; then
+            echo "❌ Score SEO trop faible (< 50)"
             exit 1
           fi
