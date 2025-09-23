@@ -1,29 +1,3 @@
-name: CI-CD with Eco-Responsibility
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-
-jobs:
-  build-test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install dependencies
-        run: cd backend && npm install
-
-      - name: Run tests
-        run: cd backend && npm test
-
   eco-check:
     runs-on: ubuntu-latest
     needs: build-test
@@ -48,15 +22,12 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Install EcoIndex CLI
-        run: npm install -g https://github.com/cnumr/ecoindex_cli.git
-
-      - name: Run EcoIndex analysis
-        run: ecoindex-cli analyse --url http://localhost:3000 --json > ecoindex-report.json
+      - name: Run EcoIndex analysis via API
+        run: curl "https://bff.ecoindex.fr/ecoindex?url=http://localhost:3000" -o ecoindex-report.json
 
       - name: Check EcoIndex thresholds
         run: |
-          score=$(jq '.score' ecoindex-report.json)
+          score=$(jq '.ecoindex' ecoindex-report.json)
           size=$(jq '.size' ecoindex-report.json)
           dom=$(jq '.nodes' ecoindex-report.json)
 
