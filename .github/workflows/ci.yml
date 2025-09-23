@@ -53,7 +53,7 @@ jobs:
 
       - name: Run Lighthouse audit with thresholds
         run: |
-          # Génère à la fois JSON + HTML
+          # Génère JSON + HTML
           npx lighthouse http://localhost:3000 \
             --output=json \
             --output=html \
@@ -61,11 +61,11 @@ jobs:
             --chrome-flags="--headless --no-sandbox --disable-gpu"
 
           # Vérifie que le JSON est bien lisible
-          cat lighthouse-report.json | jq '.' > /dev/null
+          cat lighthouse-report.report.json | jq '.' > /dev/null
 
-          perf=$(jq '.categories.performance.score * 100' lighthouse-report.json)
-          acc=$(jq '.categories.accessibility.score * 100' lighthouse-report.json)
-          seo=$(jq '.categories.seo.score * 100' lighthouse-report.json)
+          perf=$(jq '.categories.performance.score * 100' lighthouse-report.report.json)
+          acc=$(jq '.categories.accessibility.score * 100' lighthouse-report.report.json)
+          seo=$(jq '.categories.seo.score * 100' lighthouse-report.report.json)
 
           echo "Performance = $perf"
           echo "Accessibilité = $acc"
@@ -89,5 +89,5 @@ jobs:
         with:
           name: lighthouse-reports
           path: |
-            lighthouse-report.json
-            lighthouse-report.html
+            lighthouse-report.report.json
+            lighthouse-report.report.html
