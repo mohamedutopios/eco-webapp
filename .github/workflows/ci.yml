@@ -53,10 +53,11 @@ jobs:
 
       - name: Run Lighthouse audit with thresholds
         run: |
-          # Utilise npx pour lancer lighthouse
+          # Génère à la fois JSON + HTML
           npx lighthouse http://localhost:3000 \
             --output=json \
-            --output-path=./lighthouse-report.json \
+            --output=html \
+            --output-path=./lighthouse-report \
             --chrome-flags="--headless --no-sandbox --disable-gpu"
 
           # Vérifie que le JSON est bien lisible
@@ -82,3 +83,11 @@ jobs:
             echo "❌ Score SEO trop faible (< 50)"
             exit 1
           fi
+
+      - name: Upload Lighthouse reports
+        uses: actions/upload-artifact@v3
+        with:
+          name: lighthouse-reports
+          path: |
+            lighthouse-report.json
+            lighthouse-report.html
