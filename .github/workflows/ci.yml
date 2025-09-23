@@ -48,16 +48,20 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Run EcoIndex analysis via API
-        run: curl "https://bff.ecoindex.fr/ecoindex?url=http://localhost:3000" -o ecoindex-report.json
+      # ✅ GreenIT CLI pour analyse NR locale
+      - name: Install GreenIT CLI
+        run: npm install -g greenit-cli
 
-      - name: Check EcoIndex thresholds
+      - name: Run GreenIT analysis
+        run: greenit http://localhost:3000 --json > greenit-report.json
+
+      - name: Check GreenIT thresholds
         run: |
-          score=$(jq '.ecoindex' ecoindex-report.json)
-          size=$(jq '.size' ecoindex-report.json)
-          dom=$(jq '.nodes' ecoindex-report.json)
+          score=$(jq '.ecoIndex' greenit-report.json)
+          size=$(jq '.size' greenit-report.json)
+          dom=$(jq '.nodes' greenit-report.json)
 
-          echo "EcoIndex score = $score"
+          echo "GreenIT EcoIndex = $score"
           echo "Page size = $size Ko"
           echo "DOM nodes = $dom"
 
@@ -74,6 +78,7 @@ jobs:
             exit 1
           fi
 
+      # ✅ Lighthouse CI
       - name: Install Lighthouse CI
         run: npm install -g @lhci/cli
 
