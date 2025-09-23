@@ -1,0 +1,104 @@
+name: CI-CD with Eco-Responsibility
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: cd backend && npm install
+
+      - name: Run tests
+        run: cd backend && npm test
+
+  eco-check:
+    runs-on: ubuntu-latest
+    needs: build-test
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install backend dependencies
+        run: cd backend && npm install
+
+      - name: Launch app in background
+        run: |
+          cd backend
+          npm start &
+          sleep 5
+
+      - name: Setup Python (EcoIndex)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install EcoIndex CLI
+        run: pip install ecoindex
+
+      - name: Install jq
+        run: sudo apt-get update && sudo apt-get install -y jq
+
+      - name: Run EcoIndex analysis
+        run: ecoindex http://localhost:3000 --json > ecoindex-report.json
+
+      - name: Check EcoIndex thresholds
+        run: |
+          score=$(jq '.score' ecoindex-report.json)
+          size=$(jq '.size' ecoindex-report.json)
+          dom=$(jq '.nodes' ecoindex-report.json)
+
+          echo "EcoIndex score = $score"
+          echo "Page size = $size Ko"
+          echo "DOM nodes = $dom"
+
+          if [ "$score" -lt 50 ]; then
+            echo "❌ EcoIndex trop faible (score < 50)"
+            exit 1
+          fi
+          if [ "$size" -gt 1500 ]; then
+            echo "❌ Page trop lourde (> 1500 Ko)"
+            exit 1
+          fi
+          if [ "$dom" -gt 600 ]; then
+            echo "❌ DOM trop complexe (> 600)"
+            exit 1
+          fi
+
+      - name: Install Lighthouse CI
+        run: npm install -g @lhci/cli
+
+      - name: Run Lighthouse CI with thresholds
+        run: |
+          lhci collect --url=http://localhost:3000 --numberOfRuns=1 --output=json > lighthouse-report.json
+          perf=$(jq '.categories.performance.score * 100' lighthouse-report.json)
+          acc=$(jq '.categories.accessibility.score * 100' lighthouse-report.json)
+
+          echo "Performance = $perf"
+          echo "Accessibilité = $acc"
+
+          if [ "$perf" -lt 80 ]; then
+            echo "❌ Score performance trop faible (< 80)"
+            exit 1
+          fi
+          if [ "$acc" -lt 70 ]; then
+            echo "❌ Score accessibilité trop faible (< 70)"
+            exit 1
+          fi
