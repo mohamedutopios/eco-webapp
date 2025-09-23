@@ -51,13 +51,13 @@ jobs:
           python-version: '3.x'
 
       - name: Install EcoIndex CLI
-        run: npm install -g @cnumr/ecoindex_cli
+        run: npm install -g cnumr/ecoindex_cli
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
       - name: Run EcoIndex analysis
-        run: ecoindex http://localhost:3000 --json > ecoindex-report.json
+        run: ecoindex-cli analyse --url http://localhost:3000 --json > ecoindex-report.json
 
       - name: Check EcoIndex thresholds
         run: |
