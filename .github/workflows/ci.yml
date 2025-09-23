@@ -53,7 +53,16 @@ jobs:
 
       - name: Run Lighthouse CI with thresholds
         run: |
-          lhci collect --url=http://localhost:3000 --numberOfRuns=1 --output=json > lighthouse-report.json
+          # Génération du rapport JSON unique
+          lhci collect \
+            --url=http://localhost:3000 \
+            --numberOfRuns=1 \
+            --output=json \
+            --output-path=./lighthouse-report.json
+
+          # Vérifie que le JSON est bien lisible
+          cat lighthouse-report.json | jq '.' > /dev/null
+
           perf=$(jq '.categories.performance.score * 100' lighthouse-report.json)
           acc=$(jq '.categories.accessibility.score * 100' lighthouse-report.json)
           seo=$(jq '.categories.seo.score * 100' lighthouse-report.json)
