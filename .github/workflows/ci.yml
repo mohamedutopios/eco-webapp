@@ -48,13 +48,13 @@ jobs:
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
 
-      - name: Install Lighthouse CI
+      - name: Install Lighthouse CLI
         run: npm install -g @lhci/cli
 
       - name: Run Lighthouse audit with thresholds
         run: |
-          # Générer un rapport JSON unique
-          lighthouse http://localhost:3000 \
+          # Utilise npx pour lancer lighthouse
+          npx lighthouse http://localhost:3000 \
             --output=json \
             --output-path=./lighthouse-report.json \
             --chrome-flags="--headless --no-sandbox --disable-gpu"
