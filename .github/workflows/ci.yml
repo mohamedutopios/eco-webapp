@@ -51,7 +51,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install EcoIndex CLI
-        run: pip install ecoindex
+        run: npm install -g @cnumr/ecoindex_cli
 
       - name: Install jq
         run: sudo apt-get update && sudo apt-get install -y jq
