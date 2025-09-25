@@ -79,7 +79,7 @@ jobs:
             echo "❌ Score accessibilité trop faible (< 50)"
             exit 1
           fi
-          if [ "$seo" -lt 50 ]; then
+          if [ "$seo" -lt 95 ]; then
             echo "❌ Score SEO trop faible (< 50)"
             exit 1
           fi
