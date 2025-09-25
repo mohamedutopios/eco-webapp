@@ -10,7 +10,7 @@ app.use(express.static(path.join(__dirname, '../frontend')));
 
 // API simple
 app.get('/api/hello', (req, res) => {
-  res.json({ message: 'Hello Eco-World 🌍' });
+  res.json({ message: 'ca va tout le monde 🌍' });
 });
 
 // Lancer serveur

@@ -5,6 +5,6 @@ describe('GET /api/hello', () => {
   it('should return Hello Eco-World', async () => {
     const res = await request(app).get('/api/hello');
     expect(res.statusCode).toBe(200);
-    expect(res.body.message).toBe('Hello Eco-World 🌍');
+    expect(res.body.message).toBe('ca va tout le monde 🌍');
   });
 });
